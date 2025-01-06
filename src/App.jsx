@@ -29,33 +29,24 @@ const App = () => {
     setIsEditing(false);
     // Save logic can be added here (e.g., API call to save the description)
   };
-  const [mainSkills, setMainSkills] = useState(() => {
-    const savedSkills = localStorage.getItem("mainSkills");
-    return savedSkills
-      ? JSON.parse(savedSkills)
-      : ["HTML", "CSS", "JavaScript", "React", "TypeScript", "Tailwind CSS"];
-  });
-  const [subSkills, setSubSkills] = useState(() => {
-    const savedSkills = localStorage.getItem("subSkills");
-    return savedSkills
-      ? JSON.parse(savedSkills)
-      : [
-          "Flexbox",
-          "Grid Layout",
-          "SASS",
-          "CSS Animations",
-          "Responsive Design",
-        ];
-  });
+  const [mainSkills, setMainSkills] = useState([
+    "HTML",
+    "CSS",
+    "JavaScript",
+    "React",
+    "TypeScript",
+    "Tailwind CSS",
+  ]);
+  const [subSkills, setSubSkills] = useState([
+    "Flexbox",
+    "Grid Layout",
+    "SASS",
+    "CSS Animations",
+    "Responsive Design",
+  ]);
 
   const [skillInput, setSkillInput] = useState("");
   const [skillInput2, setSkillInput2] = useState("");
-
-  // Save skills to localStorage whenever `mainSkills` changes
-  useEffect(() => {
-    localStorage.setItem("mainSkills", JSON.stringify(mainSkills));
-    localStorage.setItem("subSkills", JSON.stringify(subSkills));
-  }, [mainSkills, subSkills]);
 
   const handleAddMainSkill = () => {
     setIsMainEditing(false);
