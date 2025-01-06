@@ -58,28 +58,26 @@ const App = () => {
   }, [mainSkills, subSkills]);
 
   const handleAddMainSkill = () => {
-    if (skillInput.trim() !== "") {
-      setMainSkills([...mainSkills, skillInput.trim()]);
-    }
     setIsMainEditing(false);
+    setSkillInput("");
   };
 
   const handleKeyDownMainSkill = (e) => {
     if (e.key === "Enter" && skillInput.trim() !== "") {
-      setMainSkills([...mainSkills, skillInput.trim()]);
+      setMainSkills((prevSkills) => [...prevSkills, skillInput.trim()]);
+      setSkillInput("");
     }
   };
 
   const handleAddSubSkill = () => {
-    if (skillInput2.trim() !== "") {
-      setSubSkills([...subSkills, skillInput2.trim()]);
-    }
     setIsSubEditing(false);
+    setSkillInput2("");
   };
 
   const handleKeyDownSubSkill = (e) => {
     if (e.key === "Enter" && skillInput2.trim() !== "") {
-      setSubSkills([...subSkills, skillInput2.trim()]);
+      setSubSkills((prevSkills) => [...prevSkills, skillInput2.trim()]);
+      setSkillInput2("");
     }
   };
 
@@ -89,7 +87,7 @@ const App = () => {
     companyName: "Meta",
     location: "Noida",
     experience: "2 years",
-    jobType: "Fulltime",
+    jobType: "Full-Time",
     workplaceType: "Remote",
     salary: "3 - 5 LPA",
     minSalary: "300000",
@@ -116,17 +114,20 @@ const App = () => {
     span.style.fontWeight = style === "bold" ? "bold" : "normal";
     span.style.fontStyle = style === "italic" ? "italic" : "normal";
     span.style.textDecoration = style === "underline" ? "underline" : "none";
-    span.style.fontSize = "inherit"; // Preserve font size
-    span.style.fontFamily = "inherit"; // Preserve font family
+    span.style.fontSize = "18px"; // Ensure consistent font size
     span.textContent = selectedText;
 
     // Replace selected text with styled span
     range.deleteContents();
     range.insertNode(span);
 
-    // Move cursor after the styled span
+    // Create a neutral text node to reset styles
+    const neutralNode = document.createTextNode("\u200B"); // Zero-width space
+    span.after(neutralNode);
+
+    // Move cursor after the neutral node
     const newRange = document.createRange();
-    newRange.setStartAfter(span);
+    newRange.setStartAfter(neutralNode);
     newRange.collapse(true);
     selection.removeAllRanges();
     selection.addRange(newRange);
@@ -143,9 +144,32 @@ const App = () => {
       } else if (e.ctrlKey && e.key === "u") {
         e.preventDefault();
         applyStyle("underline");
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+
+        // Ensure new lines have consistent style
+        const selection = window.getSelection();
+        const range = selection.getRangeAt(0);
+
+        const newLine = document.createElement("p");
+        newLine.style.fontSize = "18px";
+        newLine.style.fontWeight = "normal";
+        newLine.style.fontStyle = "normal";
+        newLine.style.textDecoration = "none";
+        newLine.textContent = "\u200B"; // Zero-width space to keep the line editable
+
+        range.insertNode(newLine);
+
+        // Move cursor into the new line
+        const newRange = document.createRange();
+        newRange.setStart(newLine, 0);
+        newRange.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
       }
     }
   };
+
   return (
     <>
       <main>
@@ -406,11 +430,22 @@ const App = () => {
                   <div
                     ref={editableDivRef}
                     contentEditable={isEditing}
-                    className={`w-full text-[#6f6f6f] text-[18px] font-normal font-['SF UI Text'] leading-normal bg-transparent outline-none pr-2 border-box resize-none `}
+                    className={`w-full text-[#6f6f6f] text-[18px] font-normal  leading-normal bg-transparent outline-none pr-2 border-box resize-none `}
                     onKeyDown={handleKeyDown}
                     dangerouslySetInnerHTML={{ __html: jobDescription }}
                     suppressContentEditableWarning={true}
                   ></div>
+                  {isEditing && (
+                    <div className="flex justify-end">
+                      <button
+                        className="border-2 border-[#0072DC] px-[16px] py-[5px] text-[14px] rounded-[30px] text-[#0072DC] font-semibold shadow-[0px_0px_4px_0px_#00000040]
+"
+                        onClick={handleSave}
+                      >
+                        Save
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -507,17 +542,6 @@ const App = () => {
                       </div>
                     )}
                   </div>
-                  {isEditing && (
-                    <div className="flex justify-end">
-                      <button
-                        className="border-2 border-[#0072DC] px-[16px] py-[5px] text-[14px] rounded-[30px] text-[#0072DC] font-semibold shadow-[0px_0px_4px_0px_#00000040]
-"
-                        onClick={handleSave}
-                      >
-                        Save
-                      </button>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
