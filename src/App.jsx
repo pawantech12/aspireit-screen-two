@@ -10,11 +10,11 @@ const App = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isMainEditing, setIsMainEditing] = useState(false);
   const [isSubEditing, setIsSubEditing] = useState(false);
-  const textareaRef = useRef(null);
+  const editableDivRef = useRef(null);
   const containerRef = useRef(null);
 
   useEffect(() => {
-    if (isEditing && textareaRef.current && containerRef.current) {
+    if (isEditing && editableDivRef.current && containerRef.current) {
       containerRef.current.style.height = `auto`; // Add some padding
     } else {
       containerRef.current.style.height = `260px`;
@@ -95,6 +95,56 @@ const App = () => {
     minSalary: "300000",
     maxSalary: "500000",
     benefits: ["Health Insurance"],
+  };
+  const handleSaveConent = () => {
+    if (editableDivRef.current) {
+      setJobDescription(editableDivRef.current.innerHTML);
+    }
+    setIsEditing(false);
+  };
+
+  const applyStyle = (style) => {
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return;
+
+    const range = selection.getRangeAt(0);
+    const selectedText = range.toString();
+    if (!selectedText) return;
+
+    // Create a styled span element
+    const span = document.createElement("span");
+    span.style.fontWeight = style === "bold" ? "bold" : "normal";
+    span.style.fontStyle = style === "italic" ? "italic" : "normal";
+    span.style.textDecoration = style === "underline" ? "underline" : "none";
+    span.style.fontSize = "inherit"; // Preserve font size
+    span.style.fontFamily = "inherit"; // Preserve font family
+    span.textContent = selectedText;
+
+    // Replace selected text with styled span
+    range.deleteContents();
+    range.insertNode(span);
+
+    // Move cursor after the styled span
+    const newRange = document.createRange();
+    newRange.setStartAfter(span);
+    newRange.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(newRange);
+  };
+
+  const handleKeyDown = (e) => {
+    if (isEditing) {
+      if (e.ctrlKey && e.key === "b") {
+        e.preventDefault();
+        applyStyle("bold");
+      } else if (e.ctrlKey && e.key === "i") {
+        e.preventDefault();
+        applyStyle("italic");
+      } else if (e.ctrlKey && e.key === "u") {
+        e.preventDefault();
+        applyStyle("underline");
+      }
+    }
   };
   return (
     <>
@@ -353,20 +403,14 @@ const App = () => {
                   )}
                 </div>
                 <div className="overflow-y-auto">
-                  {isEditing ? (
-                    <textarea
-                      ref={textareaRef}
-                      className="flex w-full text-[#6f6f6f] text-[18px] font-normal font-['SF UI Text'] leading-normal bg-transparent outline-none pr-2 border-box resize-none "
-                      value={jobDescription}
-                      onChange={(e) => setJobDescription(e.target.value)}
-                      rows={10}
-                      placeholder="Enter job description..."
-                    ></textarea>
-                  ) : (
-                    <div className="flex w-full text-[#6f6f6f] text-[18px] font-normal font-['SF UI Text'] leading-normal bg-transparent outline-none pr-2 border-box resize-none">
-                      {jobDescription}
-                    </div>
-                  )}
+                  <div
+                    ref={editableDivRef}
+                    contentEditable={isEditing}
+                    className={`w-full text-[#6f6f6f] text-[18px] font-normal font-['SF UI Text'] leading-normal bg-transparent outline-none pr-2 border-box resize-none `}
+                    onKeyDown={handleKeyDown}
+                    dangerouslySetInnerHTML={{ __html: jobDescription }}
+                    suppressContentEditableWarning={true}
+                  ></div>
                 </div>
               </div>
 
